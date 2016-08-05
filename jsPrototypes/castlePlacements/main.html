@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>The good, the mace and the ugly</title>
+	</head>
+	<body>
+		<script src="./lib/pixi.js"></script> 
+		<script src="./lib/castle.js"></script> 
+		<script src="./lib/utils.js"></script> 
+
+
+		<script>
+			var canvasWidth = 800;
+			var canvasHeight = 600;
+			var renderer = PIXI.autoDetectRenderer(canvasWidth, canvasHeight, { backgroundColor: 0x000000, antialias: true });
+			document.body.appendChild(renderer.view);
+			var stage = new PIXI.Container();
+			var graphics = new PIXI.Graphics();
+
+
+			var lordCastles = []
+			var bannerCastles = []
+			var numberToColour = ["0x00ff00","0x0000ff","0xffff00","0xff0000"]
+			
+			var generateLordCastles = function(){
+				for(i = 0;i<4;i++){
+					var castle = new Castle("0xff0000");
+					castle.colour = numberToColour[i]
+
+					if (i===0){
+						castle.xCoord = Math.floor(Math.random()*canvasWidth*1/2) 
+						castle.yCoord = Math.floor(Math.random()*canvasHeight*1/2)
+					}
+					if (i===1){
+						castle.xCoord = Math.floor(Math.random()*canvasWidth*1/2) + Math.floor(canvasWidth*0.5) 
+						castle.yCoord = Math.floor(Math.random()*canvasHeight*1/2)
+					}
+					if (i===2){
+						castle.xCoord = Math.floor(Math.random()*canvasWidth*1/2)
+						castle.yCoord = Math.floor(Math.random()*canvasHeight*1/2) + Math.floor(canvasHeight*0.5)
+					}
+					if (i===3){
+						castle.xCoord = Math.floor(Math.random()*canvasWidth*1/2) + Math.floor(canvasWidth*0.5)
+						castle.yCoord = Math.floor(Math.random()*canvasHeight*1/2) + Math.floor(canvasHeight *0.5)
+					}
+					lordCastles.push(castle);
+					castle.draw(graphics);
+					}
+				}
+
+			var generateBannerCastles = function(){
+				for(i = 0;i<200;i++){
+					var castle = new Castle("0xff0000");
+					castle.size = 10;
+					bannerCastles.push(castle);
+					castle.draw(graphics);
+					}
+				}
+
+
+				var distances = []
+				distances.sort(function(a, b) { 
+					    return b.distance - a.distance;
+					})
+
+
+			var colourBannerCastles = function(){
+				for(i = 0;i<bannerCastles.length;i++){
+					distances = [];
+					for(j = 0;j<lordCastles.length;j++){
+						var a = Math.hypot((lordCastles[j].xCoord - bannerCastles[i].xCoord),(lordCastles[j].yCoord - bannerCastles[i].yCoord))	
+						distances.push({distance:Math.floor(a),numberOfLord:j})
+					}
+					distances = distances.sort(function(obj1, obj2) {
+							// Ascending: first age less than the previous
+								return obj1.distance - obj2.distance;
+					});
+					bannerCastles[i].colour = numberToColour[distances[0].numberOfLord]
+					bannerCastles[i].draw(graphics);
+
+				}
+			}
+
+			
+			var marriage = function(){
+				var seedNumber = Math.random();
+				if(seedNumber < 1){
+					var element = Math.floor(Math.random() * bannerCastles.length)
+					var element2 = Math.floor(Math.random() * bannerCastles.length)
+					if (bannerCastles[element].sons > 0 && bannerCastles[element2].daughters > 0){
+						graphics.beginFill(0x00FF00);
+						graphics.lineStyle(5, 0xFFFFFF);
+						graphics.moveTo(bannerCastles[element].xCoord - bannerCastles[element].size*0.5,bannerCastles[element].yCoord - bannerCastles[element].size*0.5);
+						graphics.lineTo(bannerCastles[element2].xCoord - bannerCastles[element2].size*0.5 ,bannerCastles[element2].yCoord - bannerCastles[element2].size*0.5);
+						graphics.endFill();
+						stage.addChild(graphics);
+						bannerCastles[element].sons -= 1
+						bannerCastles[element2].daughters -= 1
+
+					}
+				}
+			}
+
+			
+
+
+			var setUp = function(){
+				generateLordCastles();
+				generateBannerCastles();
+				colourBannerCastles();
+				stage.addChild(graphics)
+			}
+
+
+			function animate() {
+				marriage();
+				//console.log(renderer.plugins.interaction.mouse.global)
+				renderer.render(stage);
+				requestAnimationFrame(animate);
+			}
+			
+			setUp();
+			animate();
+			
+
+
+			
+
+		</script>
+		
+	</body>
+</html>
+
