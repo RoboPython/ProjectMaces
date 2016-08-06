@@ -8,3 +8,4 @@ The first game from Long Circuited
 - Seasons
 - NPC relations
 - Random Events
+- Journeying Mechanics
